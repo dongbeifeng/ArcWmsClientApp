@@ -1,0 +1,66 @@
+.viewport{
+    width: 100%;
+    padding: 20px;
+}
+.container {
+    width: 100%;
+}
+
+/* .elements {
+    border: 2px solid #eee;
+} */
+
+.cube {
+    display: inline-block;
+    border-radius: 5px;
+    margin: 4px;
+    background: #eee;
+    --color: #4af;
+}
+
+.empty.elements {
+    border: none;
+}
+
+
+#selecto1 .cube {
+    transition: all ease 0.2s;
+}
+
+.moveable #selecto1 .cube {
+    transition: none;
+}
+
+
+.selecto-area {
+    width: 100%;
+    overflow: auto;
+}
+
+
+.moveable #selecto1 .cube {
+    transition: none;
+}
+
+.selecto-area .selected {
+    color: #fff;
+    background: var(--color);
+}
+
+table.rack {
+  border: 1px solid #c9c9c9;
+  border-collapse: separate;
+  border-spacing: 2px;
+  margin: 16px 0;
+  text-align: center;
+}
+
+table.rack td {
+  border: 1px solid #c9c9c9;
+  position: relative;
+
+}
+
+table.rack td.isInboundDisabled, table.rack td.isOutboundDisabled {
+  border-color: red;
+}

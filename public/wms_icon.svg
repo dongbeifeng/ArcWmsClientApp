@@ -1,0 +1,13 @@
+<svg width="42" height="42" xmlns="http://www.w3.org/2000/svg">
+
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="402" width="582" y="-1" x="-1"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <g id="svg_1">
+   <text font-weight="bold" stroke="null" transform="matrix(0.7562954167319447,0,0,0.7522179462268532,1.8612219757657704,8.399687184126797) " xml:space="preserve" text-anchor="start" font-family="'Shadows Into Light', serif" font-size="24" id="svg_2" y="25.725471" x="0.076281" fill-opacity="null" stroke-opacity="null" stroke-width="0" fill="#000000">WMS</text>
+  </g>
+ </g>
+</svg>
