@@ -94,20 +94,37 @@ export interface IStreetletInfo {
    outlets: { outletId: number; outletCode: string }[];
 
   /**
-   * 是否离线
+   * 是否禁入
    *
    * @type {boolean}
    * @memberof IStreetletListItem
    */
-  offline: boolean;
+  isInboundDisabled: boolean;
 
   /**
-   * 离线备注
+   * 禁入备注
    *
    * @type {string}
    * @memberof IStreetletListItem
    */
-  offlineComment: string;
+  inboundDisabledComment: string;
+
+  /**
+   * 是否禁出
+   *
+   * @type {boolean}
+   * @memberof IStreetletListItem
+   */
+   isOutboundDisabled: boolean;
+
+   /**
+    * 禁出备注
+    *
+    * @type {string}
+    * @memberof IStreetletListItem
+    */
+   outboundDisabledComment: string;
+
 }
 
 
@@ -185,12 +202,12 @@ export interface IStreetletUsageInfo {
 }
 
 /**
- * 使巷道脱机和联机的操作参数
+ * 启用或禁用巷道的操作参数
  *
  * @export
- * @interface ITakeStreetletOfflineArgs
+ * @interface IEnableStreetletArgs
  */
-export interface ITakeStreetletOfflineArgs {
+export interface IEnableStreetletArgs {
 
   /**
    * 巷道Id
@@ -198,10 +215,10 @@ export interface ITakeStreetletOfflineArgs {
   streetletId?: number;
 
   /**
-   * 脱机或联机的操作备注。必填
+   * 启用或禁用巷道的操作备注。必填
    *
    * @type {string}
-   * @memberof ITakeOfflineArgs
+   * @memberof IEnableStreetletArgs
    */
   comment: string;
 }
@@ -259,7 +276,7 @@ export interface IStorageLocationListArgs {
    * @type {boolean}
    * @memberof IStorageLocationListArgs
    */
-  loaded?: boolean;
+  isLoaded?: boolean;
 
   /**
    * 分组
@@ -591,31 +608,34 @@ export interface IKeyPointInfo {
   unitloadCount: number; // 货载数
 }
 
+
 /**
- * 禁用或启用位置的操作参数
+ * 启用或禁用位置的操作参数
  *
  * @export
- * @interface IDisableLocationArgs
+ * @interface IEnableLocationArgs
  */
-export interface IDisableLocationArgs {
+ export interface IEnableLocationArgs {
 
   /**
-   * 要禁用或启用的位置 Id 列表
+   * 要启用或禁用的位置 Id 列表
    *
    * @type {number[]}
-   * @memberof IDisableLocationArgs
+   * @memberof IEnableLocationArgs
    */
   locationIds: number[];
 
 
   /**
-   *  禁用或启用位置的操作备注，必填
+   *  操作备注
    *
    * @type {string}
-   * @memberof IDisableLocationArgs
+   * @memberof IEnableLocationArgs
    */
-  comment: string;
+  comment?: string;
 }
+
+
 
 /**
  * 设置存储分组的操作参数
@@ -882,7 +902,7 @@ export interface ISideViewLocation {
   /**
    * 是否有货
    */
-  loaded?: boolean;
+  isLoaded?: boolean;
 
   /**
    * 货位在左侧还是右侧
@@ -903,7 +923,7 @@ export interface ISideViewLocation {
   /**
    * 所在列
    */
-  column: number;
+  bay: number;
   /**
    * 是否禁止入站
    */
@@ -996,9 +1016,15 @@ export interface ISideViewData {
    */
   streetletCode?: string;
   /**
-   * 巷道是否离线
+   * 巷道是否禁入
    */
-  offline?: boolean;
+  isInboundDisabled?: boolean;
+
+ /**
+   * 巷道是否禁出
+   */
+  isOutboundDisabled?: boolean;
+
   /**
    * 巷道的货位数，不包含 Swm.Model.Location.Exists 为 false 的货位。
    */
@@ -1012,7 +1038,12 @@ export interface ISideViewData {
    */
   locations: ISideViewLocation[];
   /**
-   * 巷道离线的备注
+   * 巷道禁入的备注
    */
-  offlineComment?: string;
+  inboundDisabledComment?: string;
+
+  /**
+   * 巷道禁出的备注
+   */
+  outboundDisabledComment?: string;
 }

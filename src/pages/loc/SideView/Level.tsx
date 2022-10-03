@@ -14,13 +14,13 @@ export const Level: FC<{
   return (
     <tr key={levelNo}>
       {
-        orderBy(locs, x => x.column, colSortOrder )
+        orderBy(locs, x => x.bay, colSortOrder )
           .map(loc => {
             return (
               <td
                 key={loc.locationId}
                onDoubleClick={()=>{showDetail(loc.locationCode)}}
-                title={`${loc.column} 列 ${loc.level} 层 ${loc.isInboundDisabled && '已禁入' || ''} ${loc.isOutboundDisabled && '已禁出' || ''} ${loc.exists ? '' : '货位不存在'}`}
+                title={`${loc.bay} 列 ${loc.level} 层 ${loc.isInboundDisabled && '已禁入' || ''} ${loc.isOutboundDisabled && '已禁出' || ''} ${loc.exists ? '' : '货位不存在'}`}
                 className={`${loc.isInboundDisabled ? 'isInboundDisabled' : ''} ${loc.isOutboundDisabled ? 'isOutboundDisabled' : ''}`}
               >
                 <CBox key={loc.locationId} location={loc} ></CBox>

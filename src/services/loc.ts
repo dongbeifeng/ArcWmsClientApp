@@ -1,4 +1,4 @@
-import type { IDisableLocationArgs, IKeyPointListArgs, IKeyPointInfo, IStreetletListArgs, IStreetletInfo, IOutletListArgs, IOutletInfo, ISetOutletsArgs, IStorageLocationListArgs, IStorageLocationInfo, ITakeStreetletOfflineArgs, ICreateUpdateKeyPointArgs, ISideViewData, ISetStorageGroupArgs, ISetHeightLimitArgs, ISetWeightLimitArgs, ICreateOutletArgs,  } from '@/models/loc';
+import type { IKeyPointListArgs, IKeyPointInfo, IStreetletListArgs, IStreetletInfo, IOutletListArgs, IOutletInfo, ISetOutletsArgs, IStorageLocationListArgs, IStorageLocationInfo, IEnableStreetletArgs, ICreateUpdateKeyPointArgs, ISideViewData, ISetStorageGroupArgs, ISetHeightLimitArgs, ISetWeightLimitArgs, ICreateOutletArgs, IEnableLocationArgs,  } from '@/models/loc';
 import type { IUnitloadDetail } from '@/models/matl';
 import { trimArgs } from '@/utils/mapUtil';
 
@@ -36,34 +36,66 @@ export async function getStreetletOptions() {
   });
 }
 
+
 /**
- * 使巷道脱机
+ * 禁止巷道入站
  *
  * @export
- * @param {ITakeStreetletOfflineArgs} args
+ * @param {IEnableStreetletArgs} args
  * @returns
  */
-export async function takeStreetletOffline(args: ITakeStreetletOfflineArgs) {
-  return request<IApiData>(`api/loc/take-streetlet-offline`, {
+ export async function disableStreetletInbound(args: IEnableStreetletArgs) {
+  return request<IApiData>(`api/loc/disable-streetlet-inbound`, {
+    method: 'POST',
+    data: args,
+  });
+}
+
+/**
+ * 禁止巷道出站
+ *
+ * @export
+ * @param {IEnableStreetletArgs} args
+ * @returns
+ */
+export async function disableStreetletOutbound(args: IEnableStreetletArgs) {
+  return request<IApiData>(`api/loc/disable-streetlet-outbound`, {
+    method: 'POST',
+    data: args,
+  });
+}
+
+/**
+ * 允许巷道入站
+ *
+ * @export
+ * @param {IEnableInboundArgs} args
+ * @returns
+ */
+export async function enableStreetletInbound(args: IEnableStreetletArgs) {
+  return request<IApiData>(`api/loc/enable-streetlet-inbound`, {
     method: 'POST',
     data: args,
   });
 }
 
 
+
 /**
- * 使巷道联机
+ * 允许巷道出站
  *
  * @export
- * @param {ITakeOnlineArgs} args
+ * @param {IEnableOutboundArgs} args
  * @returns
  */
-export async function takeStreetletOnline(args: ITakeStreetletOfflineArgs) {
-  return request<IApiData>(`api/loc/take-streetlet-online`, {
+export async function enableStreetletOutbound(args: IEnableStreetletArgs) {
+  return request<IApiData>(`api/loc/enable-streetlet-outbound`, {
     method: 'POST',
     data: args,
   });
 }
+
+
 
 /**
  * 设置巷道可到达的出口
@@ -92,7 +124,7 @@ export async function setOutlets(args: ISetOutletsArgs) {
 export async function getStorageLocationList(
   params: IStorageLocationListArgs,
   sort: Record<string, SortOrder>,
-  filter: Record<string, React.ReactText[]>,
+  filter: Record<string, React.ReactText[] | null>,
 ) {
   return request<RequestData<IStorageLocationInfo>>('api/loc/get-storage-location-list', {
     method: 'POST',
@@ -116,7 +148,7 @@ export async function getStorageLocationList(
 export async function getKeyPointList(
   params: IKeyPointListArgs,
   sort: Record<string, SortOrder>,
-  filter: Record<string, React.ReactText[]>,
+  filter: Record<string, React.ReactText[] | null>,
 ): Promise<RequestData<IKeyPointInfo>> {
   return request<RequestData<IKeyPointInfo>>('api/loc/get-key-point-list', {
     method: 'POST',
@@ -129,56 +161,58 @@ export async function getKeyPointList(
 }
 
 /**
- * 将位置设为禁止入站
+ * 禁止位置入站
  *
  * @export
- * @param {IDisableLocationArgs} args
+ * @param {IEnableLocationArgs} args
  * @returns
  */
-export async function disableInbound(args: IDisableLocationArgs) {
-  return request<IApiData>(`api/loc/disable-inbound`, {
+export async function disableLocationInbound(args: IEnableLocationArgs) {
+  return request<IApiData>(`api/loc/disable-location-inbound`, {
     method: 'POST',
     data: args,
   });
 }
 
 /**
- * 将位置设为允许入站
+ * 禁止位置出站
+ *
+ * @export
+ * @param {IEnableLocationArgs} args
+ * @returns
+ */
+export async function disableLocationOutbound(args: IEnableLocationArgs) {
+  return request<IApiData>(`api/loc/disable-location-outbound`, {
+    method: 'POST',
+    data: args,
+  });
+}
+
+/**
+ * 允许位置入站
  *
  * @export
  * @param {IEnableInboundArgs} args
  * @returns
  */
-export async function enableInbound(args: IDisableLocationArgs) {
-  return request<IApiData>(`api/loc/enable-inbound`, {
+export async function enableLocationInbound(args: IEnableLocationArgs) {
+  return request<IApiData>(`api/loc/enable-location-inbound`, {
     method: 'POST',
     data: args,
   });
 }
 
-/**
- * 将位置设为禁止出站
- *
- * @export
- * @param {IDisableOutboundArgs} args
- * @returns
- */
-export async function disableOutbound(args: IDisableLocationArgs) {
-  return request<IApiData>(`api/loc/disable-outbound`, {
-    method: 'POST',
-    data: args,
-  });
-}
+
 
 /**
- * 将位置设为允许出站
+ * 允许位置出站
  *
  * @export
  * @param {IEnableOutboundArgs} args
  * @returns
  */
-export async function enableOutbound(args: IDisableLocationArgs) {
-  return request<IApiData>(`api/loc/enable-outbound`, {
+export async function enableLocationOutbound(args: IEnableLocationArgs) {
+  return request<IApiData>(`api/loc/enable-location-outbound`, {
     method: 'POST',
     data: args,
   });

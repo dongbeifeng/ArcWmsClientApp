@@ -292,10 +292,10 @@ export interface IAllocatStockOptions {
   excludePallets?: string[];
 
   /**
-   * 指示是否跳过脱机的巷道。已脱机巷道的托盘无法下架，但跳过会打破先入先出规则
+   * 指示是否跳过禁出的巷道。已禁出巷道的托盘无法下架，但跳过会打破先入先出规则
    *
    */
-  skipOfflineStreetlets: boolean;
+  skipStreetletsOutboundDisabled: boolean;
 
 }
 

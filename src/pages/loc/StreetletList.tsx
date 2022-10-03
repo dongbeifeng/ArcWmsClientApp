@@ -3,18 +3,20 @@ import React, { useState, useRef, useEffect, Fragment } from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import SetStreetletOfflineForm from './components/SetStreetletOfflineForm';
+
 import SetOutletsForm from './components/SetOutletsForm';
 import { defaultSearchConfig } from '@/defaultColConfig';
 import Title from 'antd/es/typography/Title';
 import { handleAction } from '@/utils/myUtils';
-import { getStreetletList, getOutletOptions, setOutlets, takeStreetletOffline, takeStreetletOnline } from '@/services/loc';
+import { getStreetletList, getOutletOptions, enableStreetletInbound, setOutlets, enableStreetletOutbound, disableStreetletInbound, disableStreetletOutbound } from '@/services/loc';
 import type { IStreetletListArgs, IStreetletInfo } from '@/models/loc';
+import EnableStreetletForm, { FormTitle } from './components/EnableStreetletForm';
 
 export default () => {
   const [currentRow, setCurrentRow] = useState<IStreetletInfo>();
-  const [portModalVisible, setOutletModalVisible] = useState<boolean>(false);
-  const [offlineModalVisible, setOfflineModalVisible] = useState<boolean>(false);
+  const [outletModalVisible, setOutletModalVisible] = useState<boolean>(false);
+  const [enableStreetletFormVisible, setEnableStreetletFormVisible] = useState<boolean>(false);
+    const [formTitle, setFormTitle] = useState<FormTitle>();
   const [outletsOptions, setOutletsOptions] = useState<{ label: string; value: number }[]>();
 
   const actionRef = useRef<ActionType>();
@@ -51,8 +53,8 @@ export default () => {
     },
     {
       title: '禁入',
-      dataIndex: 'isInboundDisabled',
-      key: 'isInboundDisabled',
+      dataIndex: 'inboundDisabled',
+      key: 'inboundDisabled',
     },
     {
       title: '可用',
@@ -90,6 +92,7 @@ export default () => {
     //
     {
       title: '使用率',
+      search: false,
       render: (_, record) => (
         <Popover placement='right' content={
           <Fragment>
@@ -110,15 +113,29 @@ export default () => {
         val.map((x) => x.outletCode).join(','),
     },
     {
-      title: '状态',
+      title: '禁止入站',
       search: false,
-      tip: '脱机状态下不会下发新的任务，但已有任务会继续执行',
+      tip: '不会为已禁入的巷道生成新的入站任务，但已有任务会继续执行',
       render: (_, record) => (
-        <Tooltip title={record.offlineComment}>
+        <Tooltip title={record.inboundDisabledComment}>
           {
-            record.offline ?
-              <Badge status='error' text='脱机' />
-              : <Badge status='success' text='联机' />
+            record.isInboundDisabled ?
+              <Badge status='error' text='已禁入' />
+              : <Badge status='success' text='未禁入' />
+          }
+        </Tooltip>
+      ),
+    },
+    {
+      title: '禁止出站',
+      search: false,
+      tip: '不会为已禁入的巷道生成新的出站任务，但已有任务会继续执行',
+      render: (_, record) => (
+        <Tooltip title={record.outboundDisabledComment}>
+          {
+            record.isOutboundDisabled ?
+              <Badge status='error' text='已禁出' />
+              : <Badge status='success' text='未禁出' />
           }
         </Tooltip>
       ),
@@ -132,21 +149,27 @@ export default () => {
           <a
             onClick={() => {
               setCurrentRow(record);
-              setOfflineModalVisible(true);
+              setFormTitle(record.isInboundDisabled ? '允许入站' : '禁止入站');
+              setEnableStreetletFormVisible(true);
             }}
           >
-            {record.offline ? '联机' : '脱机'}
+            {record.isInboundDisabled ? '允许入站' : '禁止入站'}
           </a>
+
           <Divider type="vertical" />
           <a
-            //   onClick={() => {
-            //     console.log(record.streetletCode)
-            //     history.createHref({
-            //       pathname: `/sideview/${record.streetletCode}`
-            //     })
-            //   }
+            onClick={() => {
+              setCurrentRow(record);
+              setFormTitle(record.isOutboundDisabled ? '允许出站' : '禁止出站');
+              setEnableStreetletFormVisible(true);
+            }}
+          >
+            {record.isOutboundDisabled ? '允许出站' : '禁止出站'}
+          </a>
 
-            // }
+          <Divider type="vertical" />
+
+          <a
             href={`#/loc/sideview/${record.streetletCode}`}
             target="_blank"
           >
@@ -159,7 +182,7 @@ export default () => {
               setOutletModalVisible(true);
             }}
           >
-            设置出货口
+            设置出口
           </a>
         </>
       ),
@@ -192,40 +215,45 @@ export default () => {
         toolBarRender={() => []}
         request={getStreetletList}
         columns={columns}
-        rowClassName={(record) => record.offline ? "text-danger" : ""}
+        rowClassName={(record) => record.isInboundDisabled ? "text-danger" : ""}
       />
 
-      {currentRow && offlineModalVisible && (
-        <SetStreetletOfflineForm
-          onTakeOffline={async value => {
-            const success = await handleAction(() => takeStreetletOffline(value));
+      {currentRow && enableStreetletFormVisible && (
+        <EnableStreetletForm
+        onSubmit={async value => {
+            const success = await handleAction(() => {
+              switch (formTitle) {
+                case '允许入站':
+                  return enableStreetletInbound(value);
+                case "允许出站":
+                  return enableStreetletOutbound(value);
+                case '禁止入站':
+                  return disableStreetletInbound(value);
+                case '禁止出站':
+                  return disableStreetletOutbound(value);
+                default:
+                  return Promise.reject(new Error('无效分支'));
+            }});
             if (success) {
-              setOfflineModalVisible(false);
+              setEnableStreetletFormVisible(false);
               setCurrentRow(undefined);
               if (actionRef.current) {
                 actionRef.current.reload();
               }
             }
           }}
-          onTakeOnline={async value => {
-            const success = await handleAction(() => takeStreetletOnline(value));
-            if (success) {
-              setOfflineModalVisible(false);
-              setCurrentRow(undefined);
-              if (actionRef.current) {
-                actionRef.current.reload();
-              }
-            }
-          }}
+
           onCancel={() => {
-            setOfflineModalVisible(false);
+            setEnableStreetletFormVisible(false);
             setCurrentRow(undefined);
           }}
-          values={currentRow}
+          streetletId={currentRow.streetletId}
+          streetletCode={currentRow.streetletCode}
+          formTitle={formTitle}
         />
       )}
 
-      {currentRow && portModalVisible && outletsOptions && (
+      {currentRow && outletModalVisible && outletsOptions && (
         <SetOutletsForm
           onSubmit={async (value) => {
             const success = await handleAction(() => setOutlets({

@@ -18,7 +18,7 @@ const CBox: FC<{ location: ISideViewLocation }> = (props) => {
           data-specification={props.location.specification}
         >
           {
-            props.location.loaded &&
+            props.location.isLoaded &&
             <LayoutOutlined title="有货" rotate={-90} style={{ verticalAlign: 'bottom', fontSize: '16px', color: '#08c'  }}/>
           }
         </div>

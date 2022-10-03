@@ -564,10 +564,10 @@ const OutboundDetail: FC = (props: any) => {
             </Form.Item>
 
             <Form.Item
-              name="skipOfflineStreetlets"
+              name="skipStreetletsOutboundDisabled"
               valuePropName="checked" >
-              <Checkbox>跳过脱机巷道 &nbsp;
-                <span style={{ color: 'red' }}>跳过脱机巷道会打破先入先出规则</span>
+              <Checkbox>跳过禁出的巷道 &nbsp;
+                <span style={{ color: 'red' }}>跳过禁出的巷道会打破先入先出规则</span>
               </Checkbox>
             </Form.Item>
           </Form>

@@ -4,25 +4,24 @@ import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 
-import { disableInbound, disableOutbound, enableInbound, enableOutbound, getStreetletOptions, getStorageLocationList } from '@/services/loc';
+import { disableLocationInbound, disableLocationOutbound, enableLocationInbound, enableLocationOutbound, getStreetletOptions, getStorageLocationList } from '@/services/loc';
 import Text from 'antd/es/typography/Text';
 import { ArrowRightOutlined, LayoutOutlined } from '@ant-design/icons';
 
 import { defaultSearchConfig } from '@/defaultColConfig';
-
 import { handleAction } from '@/utils/myUtils';
-import type { FormType } from './components/SetForbiddenForm';
-import SetForbiddenForm from './components/SetForbiddenForm';
 import type { IStreetletInfo, IStorageLocationInfo, IStorageLocationListArgs } from '@/models/loc';
 import { buildbooleanMap } from '@/utils/mapUtil';
+import EnableLocationForm, { FormTitle } from './components/EnableLocationForm';
 
 const { Option } = Select;
 
 export default () => {
   const [currentRow, setCurrentRow] = useState<IStorageLocationInfo>();
-  const [forbiddenModalVisible, setForbiddenModalVisible] = useState<boolean>(false);
-  const [formType, setFormType] = useState<FormType>();
+  const [enableLocationFormVisible, setEnableLocationFormVisible] = useState<boolean>(false);
+  const [formTitle, setFormTitle] = useState<FormTitle>();
   const [streetletOptions, setStreetletOptions] = useState<IStreetletInfo[]>();
+
   useEffect(() => {
     getStreetletOptions()
       .then((res) => setStreetletOptions(res.data));
@@ -90,9 +89,9 @@ export default () => {
     },
     {
       title: '是否有货',
-      key: 'loaded',
+      key: 'isLoaded',
       hideInTable: true,
-      dataIndex: 'loaded',
+      dataIndex: 'isLoaded',
       filters: true,
       valueType: 'radioButton',
       valueEnum: buildbooleanMap('全部', '有货', '无货'),
@@ -114,34 +113,63 @@ export default () => {
       search: false,
     },
     {
-      title: '是否禁入',
+      title: '禁止入站',
       dataIndex: 'isInboundDisabled',
+      tip: '不会为已禁入的位置生成新的入站任务，但已有任务会继续执行',
       valueType: 'radioButton',
-      valueEnum: buildbooleanMap('全部', '禁入', '未禁入'),
+      valueEnum: buildbooleanMap('全部', '已禁入', '未禁入'),
       initialValue: '',
 
       render: (_, record) => (
         <Tooltip placement="topLeft" title={record.inboundDisabledComment}>
-          {`${record.isInboundDisabled ? '是' : '否'}`}
+          {`${record.isInboundDisabled ? '已禁入' : '未禁入'}`}
         </Tooltip>
       ),
     },
+    {
+      title: '巷道禁入',
+      key: 'isStreetletInboundDisabled',
+      search: false,
+      render: (_, record) => {
+        const streetlet = streetletOptions?.find(x => x.streetletId === record.streetletId);
+        return (
+          <Tooltip placement="topLeft" title={streetlet?.inboundDisabledComment}>
+            {`${streetlet?.isInboundDisabled ? '已禁入' : '未禁入'}`}
+          </Tooltip>
+        )
+      },
+    },
+
     {
       title: '出站数',
       dataIndex: 'outboundCount',
       search: false,
     },
     {
-      title: '是否禁出',
+      title: '禁止出站',
       dataIndex: 'isOutboundDisabled',
+      tip: '不会为已禁出的位置生成新的出站任务，但已有任务会继续执行',
       valueType: 'radioButton',
-      valueEnum: buildbooleanMap('全部', '禁出', '未禁出'),
+      valueEnum: buildbooleanMap('全部', '已禁出', '未禁出'),
       initialValue: '',
       render: (_, record) => (
         <Tooltip placement="topLeft" title={record.outboundDisabledComment}>
-          {`${record.isOutboundDisabled ? '是' : '否'}`}
+          {`${record.isOutboundDisabled ? '已禁出' : '未禁出'}`}
         </Tooltip>
       ),
+    },
+    {
+      title: '巷道禁出',
+      key: 'isStreetletOutboundDisabled',
+      search: false,
+      render: (_, record) => {
+        const streetlet = streetletOptions?.find(x => x.streetletId === record.streetletId);
+        return (
+          <Tooltip placement="topLeft" title={streetlet?.outboundDisabledComment}>
+            {`${streetlet?.isOutboundDisabled ? '已禁出' : '未禁出'}`}
+          </Tooltip>
+        )
+      },
     },
     {
       title: '货载数',
@@ -177,8 +205,8 @@ export default () => {
           <a
             onClick={() => {
               setCurrentRow(record);
-              setFormType(record.isInboundDisabled ? 'enableInbound' : 'disableInbound');
-              setForbiddenModalVisible(true);
+              setFormTitle(record.isInboundDisabled ? '允许入站' : '禁止入站');
+              setEnableLocationFormVisible(true);
             }}
           >
             {record.isInboundDisabled ? '允许入站' : '禁止入站'}
@@ -188,8 +216,8 @@ export default () => {
           <a
             onClick={() => {
               setCurrentRow(record);
-              setFormType(record.isOutboundDisabled ? 'enableOutbound' : 'disableOutbound');
-              setForbiddenModalVisible(true);
+              setFormTitle(record.isOutboundDisabled ? '允许出站' : '禁止出站');
+              setEnableLocationFormVisible(true);
             }}
           >
             {record.isOutboundDisabled ? '允许出站' : '禁止出站'}
@@ -213,37 +241,25 @@ export default () => {
           record.isInboundDisabled || record.isOutboundDisabled ? 'text-danger' : ''
         }
       />
-      {currentRow && forbiddenModalVisible && (
-        <SetForbiddenForm
+      {currentRow && enableLocationFormVisible && (
+        <EnableLocationForm
           onSubmit={async (value) => {
             const success = await handleAction(() => {
-              switch (formType) {
-                case "disableInbound":
-                  return disableInbound({
-                    locationIds: [currentRow.locationId],
-                    comment: value.comment,
-                  });
-                case "disableOutbound":
-                  return disableOutbound({
-                    locationIds: [currentRow.locationId],
-                    comment: value.comment,
-                  });
-                case "enableInbound":
-                  return enableInbound({
-                    locationIds: [currentRow.locationId],
-                    comment: value.comment,
-                  });
-                case "enableOutbound":
-                  return enableOutbound({
-                    locationIds: [currentRow.locationId],
-                    comment: value.comment,
-                  });
+              switch (formTitle) {
+                case '允许入站':
+                  return enableLocationInbound(value);
+                case "允许出站":
+                  return enableLocationOutbound(value);
+                case '禁止入站':
+                  return disableLocationInbound(value);
+                case '禁止出站':
+                  return disableLocationOutbound(value);
                 default:
                   return Promise.reject(new Error('无效分支'));
               }
             });
             if (success) {
-              setForbiddenModalVisible(false);
+              setEnableLocationFormVisible(false);
               setCurrentRow(undefined);
               if (actionRef.current) {
                 actionRef.current.reload();
@@ -251,11 +267,12 @@ export default () => {
             }
           }}
           onCancel={() => {
-            setForbiddenModalVisible(false);
+            setEnableLocationFormVisible(false);
             setCurrentRow(undefined);
           }}
+          locationId={currentRow.locationId}
           locationCode={currentRow.locationCode}
-          formType={formType}
+          formTitle={formTitle}
         />
       )}
 

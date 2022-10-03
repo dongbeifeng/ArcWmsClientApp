@@ -1,5 +1,5 @@
 import type { ISideViewData, ISideViewLocation } from "@/models/loc";
-import { disableInbound, disableOutbound, enableInbound, enableOutbound, getStreetletOptions, getSideViewData, setHeightLimit, setStorageGroup, setWeightLimit } from "@/services/loc";
+import { disableLocationInbound, disableLocationOutbound, enableLocationInbound, enableLocationOutbound, getStreetletOptions, getSideViewData, setHeightLimit, setStorageGroup, setWeightLimit } from "@/services/loc";
 
 import Selecto from "react-selecto";
 import orderBy from 'lodash/orderBy';
@@ -270,13 +270,13 @@ export default function SideView() {
       const success = await handleAction(() => {
         switch (dialogType) {
           case "enableInbound":
-            return enableInbound(args);
+            return enableLocationInbound(args);
           case "disableInbound":
-            return disableInbound(args);
+            return disableLocationInbound(args);
           case "enableOutbound":
-            return enableOutbound(args);
+            return enableLocationOutbound(args);
           case "disableOutbound":
-            return disableOutbound(args);
+            return disableLocationOutbound(args);
           case "setStorageGroup":
             return setStorageGroup(args);
           case "setWeightLimit":
