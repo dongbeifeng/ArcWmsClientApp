@@ -11,9 +11,9 @@ type RackData = Record<LevelNo, ISideViewLocation[]>;
 export const Rack: FC<{
   dispalyText: string;
   rack: RackData;
-  colSortOrder: 'asc' | 'desc';
+  baySortOrder: 'asc' | 'desc';
   showDetail: (Locationcode: string) => void;
-}> = ({ dispalyText: rackLabel, rack, colSortOrder, showDetail }) => {
+}> = ({ dispalyText: rackLabel, rack, baySortOrder: baySortOrder, showDetail }) => {
   const levelNos = Object.keys(rack);
   const firstLevel = rack[+levelNos[0]];
   const firstLoc = firstLevel[0];
@@ -28,7 +28,7 @@ export const Rack: FC<{
             orderBy(levelNos, levelNo => +levelNo, 'desc')
               .map(levelNo => {
                 return (
-                  <Level key={+levelNo} levelNo={+levelNo} locs={rack[+levelNo]} colSortOrder={colSortOrder} showDetail={showDetail} />
+                  <Level key={+levelNo} levelNo={+levelNo} locs={rack[+levelNo]} baySortOrder={baySortOrder} showDetail={showDetail} />
                 );
               })
           }

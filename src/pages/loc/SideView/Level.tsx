@@ -8,13 +8,13 @@ import type { FC } from "react";
 export const Level: FC<{
   levelNo: number;
   locs: ISideViewLocation[];
-  colSortOrder: 'asc' | 'desc';
+  baySortOrder: 'asc' | 'desc';
   showDetail: (Locationcode: string) => void;
-}> = ({ levelNo, locs, colSortOrder ,showDetail}) => {
+}> = ({ levelNo, locs, baySortOrder: baySortOrder ,showDetail}) => {
   return (
     <tr key={levelNo}>
       {
-        orderBy(locs, x => x.bay, colSortOrder )
+        orderBy(locs, x => x.bay, baySortOrder )
           .map(loc => {
             return (
               <td

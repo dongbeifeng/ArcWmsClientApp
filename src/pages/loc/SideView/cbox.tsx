@@ -1,5 +1,4 @@
 import type { ISideViewLocation } from "@/models/loc";
-import * as React from "react";
 import type { FC} from "react";
 import './cbox.less'
 import './tooltip.less'
@@ -12,6 +11,7 @@ const CBox: FC<{ location: ISideViewLocation }> = (props) => {
         <div
           className={`cbox tooltip ${props.location.exists ? '' : 'notexists'}`}
           data-location-id={props.location.locationId}
+          data-location-code={props.location.locationCode}
           data-height-limit={props.location.heightLimit}
           data-weight-limit={props.location.weightLimit}
           data-storage-group={props.location.storageGroup}

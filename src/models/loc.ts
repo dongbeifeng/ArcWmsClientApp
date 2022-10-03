@@ -1026,7 +1026,7 @@ export interface ISideViewData {
   isOutboundDisabled?: boolean;
 
   /**
-   * 巷道的货位数，不包含 Swm.Model.Location.Exists 为 false 的货位。
+   * 巷道的货位数，不包含 Exists 为 false 的货位。
    */
   locationCount?: number;
   /**
@@ -1034,7 +1034,7 @@ export interface ISideViewData {
    */
   availableCount?: number;
   /**
-   * 巷道的货位，包含 Swm.Model.Location.Exists 为 false 的货位。
+   * 巷道的货位，包含 Exists 为 false 的货位。
    */
   locations: ISideViewLocation[];
   /**

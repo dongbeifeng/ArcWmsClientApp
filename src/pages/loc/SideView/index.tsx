@@ -5,9 +5,9 @@ import Selecto from "react-selecto";
 import orderBy from 'lodash/orderBy';
 
 import './css.css'
-import { uniq } from "lodash";
+import { join, uniq } from "lodash";
 import { useEffect, useRef, useState } from "react";
-import { Button, Checkbox, Input, message, Radio, Spin } from "antd";
+import { Button, Checkbox, Input, message, Radio, Spin, Typography } from "antd";
 import { InputNumber } from "antd";
 import { Modal } from "antd";
 import { Form } from "antd";
@@ -36,7 +36,7 @@ const layout = {
   wrapperCol: { span: 16 },
 };
 
-const colSortOrders = [
+const baySortOrders = [
   { label: '从左向右', value: 'asc' },
   { label: '从右向左', value: 'desc' },
 ];
@@ -103,8 +103,10 @@ export default function SideView() {
   const [streetletList, setStreetletList] = useState<string[]>();
   const [currentLocationCode, setCurrentLocationCode] = useState<string>('');
   const [isShowDetail, setIsShowDetail] = useState<boolean>(false);
-  const [colSortOrder, setColSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [baySortOrder, setBaySortOrder] = useState<'asc' | 'desc'>('asc');
+  const [selectedLocationCodes, setSelectedLocationCodes] = useState<string[]>([]);
 
+  ref.current
   const [highlightedValue, setHighlightedValue] = useState<{
     storageGroup?: string,
     specification?: string,
@@ -259,6 +261,8 @@ export default function SideView() {
   }
 
 
+
+
   async function handleOk() {
     const fieldsValue = await form.validateFields();
     setLoading(true);
@@ -329,11 +333,12 @@ export default function SideView() {
             ref={ref}
             dragContainer={".elements"}
             selectableTargets={drag ? [".selecto-area .cbox"] : []}
-            hitRate={1}
+            hitRate={0}
             selectByClick={true}
             selectFromInside={true}
             ratio={0}
             continueSelect={true}
+
             onSelect={e => {
               e.added.forEach(el => {
                 el.classList.add("selected");
@@ -341,6 +346,11 @@ export default function SideView() {
               e.removed.forEach(el => {
                 el.classList.remove("selected");
               });
+
+              if (ref.current) {
+                const arr = ref.current.getSelectedTargets().map(el => (el.dataset.locationCode ?? ''));
+                setSelectedLocationCodes(arr);
+              }
             }}
           ></Selecto>
 
@@ -349,7 +359,7 @@ export default function SideView() {
               streetlet &&
               orderBy(Object.keys(streetlet), x => rackOrders[x]).map(rackLabel => {
                 return (
-                  <Rack key={rackLabel} dispalyText={rackLabels[rackLabel]} rack={streetlet[rackLabel]} colSortOrder={colSortOrder} showDetail={showDetail} />
+                  <Rack key={rackLabel} dispalyText={rackLabels[rackLabel]} rack={streetlet[rackLabel]} baySortOrder={baySortOrder} showDetail={showDetail} />
                 );
               })
             }
@@ -357,6 +367,9 @@ export default function SideView() {
           <div className="empty elements"></div>
         </div>
         <div style={{ marginTop: 16 }}>
+
+
+
           <span
             style={{ marginRight: 16 }}>
             分组：
@@ -448,12 +461,29 @@ export default function SideView() {
           <Button style={{ marginRight: 8 }} onClick={() => showDialog('setWeightLimit')}>设置限重</Button>
 
           <Radio.Group
-            options={colSortOrders}
-            onChange={e => setColSortOrder(e.target.value)}
-            value={colSortOrder}
+            options={baySortOrders}
+            onChange={e => setBaySortOrder(e.target.value)}
+            value={baySortOrder}
             optionType="button"
             buttonStyle="solid"
+            style={{ marginRight: 8 }}
           />
+          <Typography.Text copyable={{ text: join(selectedLocationCodes, '\n') }}>选中了 {selectedLocationCodes.length} 个货位</Typography.Text>
+        </div>
+
+        <div style={{ marginTop: 16, marginBottom: 32 }}>
+          {sideViewData?.isInboundDisabled &&
+            <Typography.Text type='danger'>
+              巷道已禁止入站：{sideViewData.inboundDisabledComment}
+            </Typography.Text>
+          }
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          {
+            sideViewData?.isOutboundDisabled &&
+            <Typography.Text type='danger'>
+              巷道已禁止出站：{sideViewData.outboundDisabledComment}
+            </Typography.Text>
+          }
 
         </div>
         {
